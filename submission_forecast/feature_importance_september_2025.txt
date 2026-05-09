@@ -1,0 +1,36 @@
+Feature importance — September 2025
+============================================================
+  Blend: hub=0.95  qnt=0.05
+
+  Rank  Feature                                 LGB gain
+-------------------------------------------------------
+  1     load_lag_0                                95,113
+  2     load_lag_1                                12,357
+  3     slot_month_mean                            2,838
+  4     load_ewma_fast                             1,510
+  5     doy_cos                                      982
+  6     load_roll_mean_96                            879
+  7     load_roll_max_4                              847
+  8     load_zscore_month                            773
+  9     load_vs_slot_month                           701
+  10    pv_kw                                        659
+  11    load_lag_2                                   613
+  12    load_lag_96                                  595
+  13    slot_dow_mean                                570
+  14    load_roll_std_4                              559
+  15    slot_month_std                               554
+  16    pv_x_hour_sin                                553
+  17    hour_sin                                     525
+  18    load_delta_1h                                522
+  19    load_roll_mean_672                           520
+  20    load_ratio_recent                            517
+  21    load_vs_slot_dow                             502
+  22    hour_cos                                     470
+  23    load_lag_192                                 460
+  24    load_lag_3                                   451
+  25    load_lag_4                                   440
+  26    load_roll_min_4                              433
+  27    month_cos                                    428
+  28    minute_of_day                                415
+  29    load_vs_slot                                 411
+  30    pv_roll_mean_96                              389
