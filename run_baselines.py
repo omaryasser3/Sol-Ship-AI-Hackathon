@@ -19,7 +19,6 @@ import holidays as hol_pkg
 F1, F2, F3       = 0.2540, 0.2682, 0.2440
 ITALIAN_HOLIDAYS = hol_pkg.Italy(years=[2024, 2025])
 DT_HOURS         = 0.25
-GRID_P_MAX_KW    = 6.0
 
 def compute_buy_price(ts):
     dow = ts.dt.dayofweek; h = ts.dt.hour
@@ -60,10 +59,11 @@ def bill_baseline_a(df):
     return float((p_imp * df["buy_price"] - p_exp * df["sell_price"]).sum() * DT_HOURS)
 
 def bill_baseline_b(df):
-    """Zero-intelligence: no battery. PV serves load, rest imported/exported."""
-    net    = df["load_kw"] - df["pv_kw"]   # positive = need to import
-    p_imp  = net.clip(lower=0).clip(upper=GRID_P_MAX_KW)
-    p_exp  = (-net).clip(lower=0).clip(upper=GRID_P_MAX_KW)
+    """Zero-intelligence: no battery. PV serves load, rest imported/exported.
+    No grid cap — the brief defines this as pure surplus/deficit with no constraints."""
+    net    = df["load_kw"] - df["pv_kw"]
+    p_imp  = net.clip(lower=0)
+    p_exp  = (-net).clip(lower=0)
     return float((p_imp * df["buy_price"] - p_exp * df["sell_price"]).sum() * DT_HOURS)
 
 # ── compute and print ─────────────────────────────────────────────────────────
@@ -73,26 +73,12 @@ print("="*65)
 print(f"  {'Period':<20s}  {'Baseline A (EUR)':>16s}  {'Baseline B (EUR)':>16s}")
 print("-"*65)
 
-KNOWN_A = {"Full Year 2025": 1218.97, "April 2025": None, "September 2025": None}
-KNOWN_B = {"Full Year 2025": 1601.09, "April 2025": None, "September 2025": None}
-
 rows = []
 for period, df in periods.items():
     a = bill_baseline_a(df)
     b = bill_baseline_b(df)
     rows.append({"period": period, "baseline_a_eur": round(a,2), "baseline_b_eur": round(b,2)})
-
-    flag_a = ""
-    if KNOWN_A[period] is not None:
-        diff = a - KNOWN_A[period]
-        flag_a = f"  (prev {KNOWN_A[period]:.2f}, diff {diff:+.2f})"
-    flag_b = ""
-    if KNOWN_B[period] is not None:
-        diff = b - KNOWN_B[period]
-        flag_b = f"  (prev {KNOWN_B[period]:.2f}, diff {diff:+.2f})"
-
-    print(f"  {period:<20s}  {a:>16.2f}{flag_a}")
-    print(f"  {'':20s}  {'':>16s}  {b:>16.2f}{flag_b}")
+    print(f"  {period:<20s}  {a:>16.2f}  {b:>16.2f}")
     print()
 
 pd.DataFrame(rows).to_csv("baseline_bills.csv", index=False)
