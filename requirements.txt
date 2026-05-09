@@ -1,0 +1,12 @@
+# Python dependencies for the Solship Energy AI Hackathon submission
+# Install with: pip install -r requirements.txt
+# Tested with Python 3.11
+
+pandas==3.0.1
+numpy==2.4.2
+lightgbm==4.6.0
+cvxpy==1.8.2
+openpyxl==3.1.5
+holidays==0.96
+scikit-learn==1.8.0
+matplotlib==3.10.8
