@@ -30,7 +30,8 @@ COLORS = {
 
 def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
                                title="March Week 3, 2025 — Dispatch Plot",
-                               year=2025):
+                               year=2025,
+                               oracle_dispatch_df=None):
     """
     The mandatory dispatch plot. 5 panels (sharing x-axis):
       1. Load + PV
@@ -46,6 +47,10 @@ def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
     week_end   = pd.Timestamp(f"{year}-03-24 00:00")
     sub = dispatch_df.loc[(dispatch_df.index >= week_start) &
                            (dispatch_df.index < week_end)].copy()
+    oracle_sub = None
+    if oracle_dispatch_df is not None:
+        oracle_sub = oracle_dispatch_df.loc[(oracle_dispatch_df.index >= week_start) &
+                                            (oracle_dispatch_df.index < week_end)].copy()
 
     if len(sub) == 0:
         # Fallback to first week if March data not available (synthetic data may not cover it)
@@ -76,6 +81,9 @@ def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
                      color="#02C39A", alpha=0.7, label="Discharging")
     ax.fill_between(sub.index, 0, np.where(pb < 0, pb, 0),
                      color="#80CBC4", alpha=0.9, label="Charging")
+    if oracle_sub is not None and "p_battery" in oracle_sub.columns:
+        ax.plot(oracle_sub.index, oracle_sub["p_battery"], color="black", lw=1.0,
+                ls="--", label="Oracle p_battery")
     ax.axhline(0, color="black", lw=0.5)
     ax.set_ylabel("P_battery (kW)\n+ discharge, − charge")
     ax.legend(loc="upper right", framealpha=0.9, fontsize=9)
@@ -89,6 +97,9 @@ def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
                      color="#990011", alpha=0.6, label="Import")
     ax.fill_between(sub.index, 0, np.where(pg < 0, pg, 0),
                      color="#EE6C4D", alpha=0.6, label="Export")
+    if oracle_sub is not None and "p_grid" in oracle_sub.columns:
+        ax.plot(oracle_sub.index, oracle_sub["p_grid"], color="black", lw=1.0,
+                ls="--", label="Oracle p_grid")
     ax.axhline(0, color="black", lw=0.5)
     ax.set_ylabel("P_grid (kW)\n+ import, − export")
     ax.legend(loc="upper right", framealpha=0.9, fontsize=9)
@@ -101,6 +112,9 @@ def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
     ax.axhline(0, color="grey", lw=0.5, linestyle="--")
     ax.axhline(1, color="grey", lw=0.5, linestyle="--")
     ax.fill_between(sub.index, 0, sub["soc"], color=COLORS["soc"], alpha=0.15)
+    if oracle_sub is not None and "soc" in oracle_sub.columns:
+        ax.plot(oracle_sub.index, oracle_sub["soc"], color="black", lw=1.0,
+                ls="--", label="Oracle SoC")
     ax.set_ylabel("SoC")
     ax.set_xlabel("Time")
     ax.set_ylim(-0.05, 1.05)
@@ -120,7 +134,13 @@ def plot_march_week3_dispatch(dispatch_df, out_path="plots/march_week3.png",
         Patch(facecolor=COLORS["F2"], edgecolor="grey", label=f"F2 (€{F2_PRICE:.4f})"),
         Patch(facecolor=COLORS["F3"], edgecolor="grey", label=f"F3 (€{F3_PRICE:.4f})"),
     ]
-    ax_legend.legend(handles=handles, loc="upper right", framealpha=0.95, fontsize=8, ncol=2)
+    # Avoid duplicate legend entries: create unique mapping
+    uniq = {}
+    for h, l in zip(handles, labels + [h.get_label() for h in handles[len(labels):]]):
+        if l not in uniq:
+            uniq[l] = h
+    ax_legend.legend(handles=list(uniq.values()), labels=list(uniq.keys()),
+                     loc="upper right", framealpha=0.95, fontsize=8, ncol=2)
 
     plt.tight_layout()
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)

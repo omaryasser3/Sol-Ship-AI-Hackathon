@@ -1,16 +1,16 @@
 =======================================================
   FORECAST METRICS — September 2025
 =======================================================
-  Timesteps evaluated : 2,850
-  Mean actual load    : 0.8422 kW
-  Mean forecast       : 0.8019 kW
-  Bias (mean error)   : -0.0403 kW
+  Timesteps evaluated : 2,879
+  Mean actual load    : 0.8384 kW
+  Mean forecast       : 0.8164 kW
+  Bias (mean error)   : -0.0220 kW
 -------------------------------------------------------
-  MAE                 : 0.3437 kW
-  RMSE                : 0.5768 kW
-  MAPE                : 52.53 %
-  NRMSE               : 68.49 %
-  Max absolute error  : 4.6361 kW
+  MAE                 : 0.3330 kW
+  RMSE                : 0.5485 kW
+  MAPE                : 53.80 %
+  NRMSE               : 65.42 %
+  Max absolute error  : 4.5261 kW
 =======================================================
 
 Per-step error statistics:
